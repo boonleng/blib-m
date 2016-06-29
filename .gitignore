@@ -1,0 +1,22 @@
+.DS_Store
+*.xcuserstate
+images/
+old/
+*.a
+*.o
+*.so
+*.pyd
+*.bak
+*.log
+*.mexmaci
+*.zip
+build/
+*~
+._*
+
+# Folders
+project.xcworkspace/
+xcuserdata/
+
+# Programs
+
