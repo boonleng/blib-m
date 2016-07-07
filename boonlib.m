@@ -976,25 +976,26 @@ return
 
 function [x] = dmap(num)
     if nargin<1, num = 51; end
+    den = num - 1;
     pt = [0.00     0.30 0.45 0.50; ...
-            9/254  0.60 0.90 1.00; ...
-           10/254  0.45 0.20 0.80; ...
-           39/254  0.70 0.40 1.00; ...
-           40/254  0.50 0.20 0.35; ...
-           69/254  1.00 0.50 0.85; ...
-           70/254  0.70 0.50 0.15; ...
-           99/254  1.00 1.00 0.85; ...
-          100/254  1.00 1.00 1.00; ... % 0dB
-          129/254  0.00 0.35 1.00; ...
-          130/254  0.10 1.00 0.50; ... % 3dB
-          159/254  0.00 0.50 0.00; ...
-          160/254  1.00 1.00 0.00; ... % 6dB
-          189/254  1.00 0.50 0.00; ... 
-          190/254  1.00 0.00 0.00; ...
-          219/254  0.50 0.00 0.00; ...
-          220/254  1.00 0.00 1.00; ...
-          249/254  0.50 0.00 0.50; ...
-          250/254  1.00 1.00 1.00; ...
+            9/den  0.60 0.90 1.00; ...
+           10/den  0.45 0.20 0.80; ...
+           39/den  0.70 0.40 1.00; ...
+           40/den  0.50 0.20 0.35; ...
+           69/den  1.00 0.50 0.85; ...
+           70/den  0.70 0.50 0.15; ...
+           99/den  1.00 1.00 0.85; ...
+          100/den  1.00 1.00 1.00; ... % 0dB
+          129/den  0.00 0.35 1.00; ...
+          130/den  0.10 1.00 0.50; ... % 3dB
+          159/den  0.00 0.50 0.00; ...
+          160/den  1.00 1.00 0.00; ... % 6dB
+          189/den  1.00 0.50 0.00; ... 
+          190/den  1.00 0.00 0.00; ...
+          219/den  0.50 0.00 0.00; ...
+          220/den  1.00 0.00 1.00; ...
+          249/den  0.50 0.00 0.50; ...
+          250/den  1.00 1.00 1.00; ...
           1.00     0.60 1.00 1.00];
     x = feval('fleximap',num,pt);
 return
@@ -1117,8 +1118,10 @@ switch (mode)
                       0.211,-0.523, 0.312].';
         yiqmap(1:npts,1) = interp1(oldx,Raw*[0.299,0.587,0.114].',newx,'cubic');
 end
-yiqmap(1:npts,2) = interp1(oldx,cromIQ(:,1),newx,'cubic');
-yiqmap(1:npts,3) = interp1(oldx,cromIQ(:,2),newx,'cubic');
+% yiqmap(1:npts,2) = interp1(oldx,cromIQ(:,1),newx,'cubic');
+% yiqmap(1:npts,3) = interp1(oldx,cromIQ(:,2),newx,'cubic');
+yiqmap(1:npts,2) = interp1(oldx,cromIQ(:,1),newx,'pchip');
+yiqmap(1:npts,3) = interp1(oldx,cromIQ(:,2),newx,'pchip');
 x=yiqmap*[1.0000, 1.0000, 1.0000; ...
           0.9562,-0.2727,-1.1037; ...
           0.6214,-0.6468, 1.7006];
@@ -1412,12 +1415,12 @@ x(6)=plot(yiqmap(:,3),'Color',[0.4 0.7 1.0]);
 x(7)=plot(hsvmap(:,1),'Color',[0.7 0.0 1.0]);
 % [legh objh outh outm] = legend(x,'Red Channel','Green Channel','Blue Channel',...
 %          'Luminance Y','Chrominance I','Chrominance Q',-1);
-[legh, objh] = legend(x,'Red Channel','Green Channel','Blue Channel',...
+[~, objh] = legend(x,'Red Channel','Green Channel','Blue Channel',...
 	'Luminance Y','Chrominance I','Chrominance Q','Hue',-1);
 tmp = findobj(objh,'Type','Text');
 set(tmp,'Color',get(0,'defaultTextColor'));
-tmp = get(0,'defaultAxesXColor');
-set(legh,'XColor',tmp,'YColor',tmp,'ZColor',tmp);
+%tmp = get(0,'defaultAxesXColor');
+%set(legh,'XColor',tmp,'YColor',tmp,'ZColor',tmp);
 hold off
 axis([0.5 len+0.5 0 1]);
 xlabel('Colormap Index'); ylabel('Value');
@@ -1625,7 +1628,7 @@ if length(path_choice)>1
 		% fprintf('Pre-selected Folder #%d: %s\n',tmp,char(path_choice(tmp)));
 	else
 		for idx = 1:length(path_choice);
-			fprintf(' %3d. %s\n',idx,char(path_choice{idx}));
+			fprintf(' % 3d. %s\n',idx,char(path_choice{idx}));
 		end
 		fprintf('\n');
 		tmp = input(['Selection (1-',num2str(idx),') : ']);
@@ -1747,8 +1750,8 @@ if ~quiet
 	else fprintf('Filesize is rediculously big at the year of 2005.\n'); x = []; return;
 	end
 	tmp = size(char(flist));
-	msize = ceil(log10(max(fbyte)));
-	ndig = ceil(log10(length(flist)));
+	msize = ceil(log10(max(fbyte)+1));
+	ndig = ceil(log10(length(flist)+1));
 	% Compact template
 	ftemplate = ['%',num2str(ndig),'d. %',num2str(tmp(2)),'s %',num2str(msize+3),'.2f ',funits,'\n'];
 	if ((tmp(2)+ndig+msize+3+5)<39)
@@ -2070,3 +2073,194 @@ end
 v = color_hsv(3);
 return
 	  
+
+function ind = nwsd2ind(data)
+ind = zeros(size(data));
+lvl = [-4 -2 -0.5 0 0.25 0.5 1.0 1.5 2 2.5 3 4 5 6 8];
+for ii = 1:numel(lvl);
+    mask = data >= lvl(ii);
+    ind(mask) = ii;
+end
+
+
+function ind = nwsr2ind(data)
+ind = zeros(size(data));
+lvl = [0.2 0.45 0.65 0.75 0.80 0.85 0.90 0.93 0.95 0.96 0.97 0.98 0.99 1.00];
+for ii = 1:numel(lvl);
+    mask = data >= lvl(ii);
+    ind(mask) = ii;
+end
+
+
+function c = nwsdmap()
+c = [hex2dec('00') hex2dec('00') hex2dec('00'); ...
+     hex2dec('40') hex2dec('40') hex2dec('40'); ...
+     hex2dec('9C') hex2dec('9C') hex2dec('9C'); ...
+     hex2dec('C9') hex2dec('C9') hex2dec('C9'); ...
+     hex2dec('8C') hex2dec('78') hex2dec('B4'); ...
+     hex2dec('00') hex2dec('00') hex2dec('98'); ...
+     hex2dec('23') hex2dec('98') hex2dec('D3'); ...
+     hex2dec('44') hex2dec('FF') hex2dec('D2'); ...
+     hex2dec('57') hex2dec('DB') hex2dec('56'); ...
+     hex2dec('FF') hex2dec('FF') hex2dec('60'); ...
+     hex2dec('FF') hex2dec('90') hex2dec('45'); ...
+     hex2dec('DA') hex2dec('00') hex2dec('00'); ...
+     hex2dec('AE') hex2dec('00') hex2dec('00'); ...
+     hex2dec('F7') hex2dec('82') hex2dec('BE'); ...
+     hex2dec('FF') hex2dec('FF') hex2dec('FF'); ...
+     hex2dec('77') hex2dec('00') hex2dec('7D')] / 255;
+return
+ 
+
+function c = nwsrmap()
+c = [hex2dec('00') hex2dec('00') hex2dec('00'); ...
+     hex2dec('95') hex2dec('94') hex2dec('9C'); ...
+     hex2dec('16') hex2dec('14') hex2dec('8C'); ...
+     hex2dec('09') hex2dec('02') hex2dec('D9'); ...
+     hex2dec('89') hex2dec('87') hex2dec('D6'); ...
+     hex2dec('5C') hex2dec('FF') hex2dec('59'); ...
+     hex2dec('8B') hex2dec('CF') hex2dec('02'); ...
+     hex2dec('FF') hex2dec('FB') hex2dec('00'); ...
+     hex2dec('FF') hex2dec('C4') hex2dec('00'); ...
+     hex2dec('FF') hex2dec('89') hex2dec('03'); ...
+     hex2dec('FF') hex2dec('2B') hex2dec('00'); ...
+     hex2dec('E3') hex2dec('00') hex2dec('00'); ...
+     hex2dec('A1') hex2dec('00') hex2dec('00'); ...
+     hex2dec('97') hex2dec('05') hex2dec('56'); ...
+     hex2dec('FA') hex2dec('AC') hex2dec('D1'); ...
+     hex2dec('77') hex2dec('00') hex2dec('7D')] / 255;
+return
+
+
+function h = nwsdbar()
+caxis([0 16])
+h = colorbar;
+set(h, 'YTick', 0:15, 'YTickLabel', ...
+    {'< TH', '-4.0', '-2.0', '-0.5', '0.0', '0.25', '0.5', '1.0', '1.5', '2.0', '2.5', '3.0', '4.0', '5.0', '6.0', 'RF'});
+return
+
+
+function h = nwsrbar()
+caxis([0 16])
+h = colorbar;
+set(h, 'YTick', 0:15, 'YTickLabel', ...
+    {'< TH', '0.2', '0.45', '0.65', '0.75', '0.80', '0.85', '0.90', '0.93', '0.95', '0.96', '0.97', '0.98', '0.99', '1.00', 'RF'});
+return
+
+function pdata = pdata_setup()
+pdata = struct('value', zeros(2, 2), ...
+    'title', 'Title', ...
+    'colormap', 'zmap', ...
+    'clim', [0 16]);
+return
+
+% pdata structure contains
+%  - colormap = individual colormap, if empty, look for pdata(1), then default
+%  - cilm     = individual c-axis, if empty, look for pdata(1), then default [0 N-1].
+function FIG = pdata_pcolor(pdata)
+FIG.ha = zeros(1, numel(pdata));
+FIG.hs = zeros(1, numel(pdata));
+FIG.hc = zeros(1, numel(pdata));
+FIG.ht = zeros(1, numel(pdata));
+xx = pdata(1).xx;
+yy = pdata(1).yy;
+for k = 1:numel(pdata)
+    % Create the plot domain
+    FIG.ha(k) = axes('Unit', 'Normalized');
+    % Colormap
+    if ~isempty(pdata(k).colormap)
+        cname = pdata(k).colormap;
+        if k == 1
+            % Possibly a common colormap case
+            colormap(boonlib(cname));
+        else
+            % Otherwise, we can start individual colormap at k >= 2
+            colormap(FIG.ha(k), boonlib(cname));
+        end
+    elseif ~isempty(pdata(1).colormap)
+        % Common colormap case
+        cname = pdata(1).colormap;
+    end
+    % Plot the data
+    if exist('cname', 'var') && strcmp(cname(1:3), 'nws') && strcmp(cname(5:7), 'map')
+        % The function to convert to index
+        ind = boonlib(['nws', cname(4), '2ind'], pdata(k).value);
+        FIG.hs(k) = pcolor(xx, yy, ind);
+        FIG.hc(k) = boonlib(['nws', cname(4), 'bar']);
+    else
+        FIG.hs(k) = pcolor(xx, yy, pdata(k).value);
+        % CLim
+        if ~isempty(pdata(k).clim)
+            caxis(pdata(k).clim);
+        elseif ~isempty(pdata(1).clim)
+            caxis(pdata(1).clim);
+        end
+        FIG.hc(k) = colorbar;
+    end
+    % Put the title string
+    FIG.ht(k) = title(pdata(k).title);
+end
+return
+
+function FIG = pdata_arrange(FIG, config)
+ndig = ceil(log10(config+1));
+if ndig == 3
+    nrow = floor(config / 100);
+    ncol = rem(floor(config * 0.1), 10);
+    tsp = rem(config, 10);
+elseif ndig == 2
+    nrow = floor(config / 10);
+    ncol = rem(config, 10);
+    tsp = 0;
+else
+    error('Unable to understand the parameter %s\n', config);
+end
+
+% ox = 0.055;
+% oy = 0.056;
+
+set(gcf, 'PaperPositionMode', 'Auto');
+tmp = get(gcf, 'Position');
+ox = max(0.055, 55 / tmp(3));  % space for y-label
+oy = max(0.055, 40 / tmp(4));  % space for x-label
+
+% rect origin
+if tsp > 0
+    ry = max((tmp(4) - 60) / tmp(4), 0.87) / nrow;
+else
+    ry = 0.95 / nrow;
+end
+% rect height
+rh = 0.88 * ry;
+
+if all(isempty(FIG.hc(2:end)))
+    rx = 0.88 / ncol;  % rect origin
+    rw = 0.9 * rx;     % rect width
+    for k = 1 : nrow * ncol
+        icol = rem(k - 1, ncol);
+        irow = floor((k - 1) / ncol);
+        set(FIG.ha(k), 'Position', [ox + icol * rx, oy + (nrow - 1 - irow) * ry, rw, rh]);
+        if irow < nrow - 1, set(FIG.ha(k), 'XTickLabel', []); else xlabel(FIG.ha(k), 'X-Distance (m)'); end
+        if icol > 0, set(FIG.ha(k), 'YTickLabel', []); else ylabel(FIG.ha(k), 'Y-Distance (m)'); end
+    end
+    delete(FIG.hc(2:end))
+    set(FIG.hc(1), 'Position', [ox + (ncol - 1) * rx + rw + 0.025, oy + (nrow - 1) * ry, 0.07 * rh, rh])
+    FIG.hc = FIG.hc(1);
+else
+    rx = (1.0 - ox) / ncol;   % rect origin
+    rw = 0.80 * rx;           % rect width
+    for k = 1 : nrow * ncol
+        icol = rem(k - 1, ncol);
+        irow = floor((k - 1) / ncol);
+        set(FIG.ha(k), 'Position', [ox + icol * rx, oy + (nrow - 1 - irow) * ry, rw, rh]);
+        if irow < nrow - 1, set(FIG.ha(k), 'XTickLabel', []); else xlabel(FIG.ha(k), 'X-Distance (m)'); end
+        if icol > 0, set(FIG.ha(k), 'YTickLabel', []); else ylabel(FIG.ha(k), 'Y-Distance (m)'); end
+        set(FIG.hc(k), 'Position', [ox + icol * rx + rw + 0.25 * ox, oy + (nrow - 1 - irow) * ry, 0.03 * rh, rh])
+    end
+end
+if tsp > 0
+    FIG.ta = axes('Unit', 'Normalized', 'Position', [0.5 0.94 0.01 0.01]);
+    FIG.tt = title('Montage Title', 'FontSize', 14, 'FontWeight', 'Bold');
+    axis off
+end
+return
