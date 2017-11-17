@@ -90,15 +90,15 @@ radars = [];
 %   'attrib', []);                                       % Plot attributes, can be empty
 % radars = radar;
 
-radars = cat(1, radars, struct('name', '750kW 1.57us (WSR-88D)',         'Pmin', 10^(-112/10), 'lambda', 3e8/2.7e9, 'Pt', 750e6,           'G', 10^(43/10), 'theta', 1.0/180*pi, 'PW', 1.57e-6, 'L', 10^(1/10), 'attrib', []));
+radars = cat(1, radars, struct('name', '750kW 1.57us (WSR-88D)',         'Pmin', 10^(-112/10), 'lambda', 3e8/2.7e9, 'Pt', 750e6,           'G', 10^(43/10), 'theta', 1.0/180*pi, 'PW', 1.57e-6, 'L', 10^(1/10), 'attrib', struct('Color', [1, 0, 0])));
 
-line_color = [0 0.7 0.3];
-radars = cat(1, radars, struct('name', 'PX-10k 800W 67us',               'Pmin', 10^(-110/10), 'lambda', 0.0314,    'Pt', 800e3 * wav_eff, 'G', 10^(42/10), 'theta', 1.4/180*pi, 'PW',   67e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color, 'LineWidth', 1.5)));
-radars = cat(1, radars, struct('name', 'PX-10k 800W 1.5us (Fill Pulse)', 'Pmin', 10^(-110/10), 'lambda', 0.0314,    'Pt', 800e3 * wav_eff, 'G', 10^(42/10), 'theta', 1.4/180*pi, 'PW',   67e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color, 'LineWidth', 1.5)));
+line_color = [0 0.3 1.0];
+radars = cat(1, radars, struct('name', 'PX-10k 800W 67us',               'Pmin', 10^(-110/10), 'lambda', 0.0314,    'Pt', 800e3 * wav_eff, 'G', 10^(42/10), 'theta', 1.4/180*pi, 'PW',   67e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color)));
+radars = cat(1, radars, struct('name', 'PX-10k 800W 1.5us (Fill Pulse)', 'Pmin', 10^(-110/10), 'lambda', 0.0314,    'Pt', 800e3 * wav_eff, 'G', 10^(42/10), 'theta', 1.4/180*pi, 'PW',   67e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color)));
 
 line_color = [0 0.7 0.6];
-radars = cat(1, radars, struct('name', 'PC-10k 800W 67us',               'Pmin', 10^(-110/10), 'lambda', 0.0500,    'Pt', 800e3 * wav_eff, 'G', 10^(42/10), 'theta', 1.4/180*pi, 'PW',   67e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color, 'LineWidth', 1.5)));
-radars = cat(1, radars, struct('name', 'PC-10k 800W 1.5us (Fill Pulse)', 'Pmin', 10^(-110/10), 'lambda', 0.0500,    'Pt', 800e3 * wav_eff, 'G', 10^(42/10), 'theta', 1.4/180*pi, 'PW',   67e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color, 'LineWidth', 1.5)));
+radars = cat(1, radars, struct('name', 'PC-10k 800W 67us',               'Pmin', 10^(-110/10), 'lambda', 0.0500,    'Pt', 800e3 * wav_eff, 'G', 10^(42/10), 'theta', 2.8/180*pi, 'PW',   67e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color, 'LineWidth', 1.5)));
+radars = cat(1, radars, struct('name', 'PC-10k 800W 1.5us (Fill Pulse)', 'Pmin', 10^(-110/10), 'lambda', 0.0500,    'Pt', 800e3 * wav_eff, 'G', 10^(42/10), 'theta', 2.8/180*pi, 'PW',   67e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color, 'LineWidth', 1.5)));
 
 % radar = struct('name', '375kW 1.57us (WSR-88D)', ... 
 % 	'Pmin', 10^(-112/10), ...
@@ -394,7 +394,7 @@ for ir = 1:numel(radars)
     
     r_blind_prev = r_blind;
 
-	fprintf('%30s : %6.2f dBZ (PW:%.2e, %.0fm)\n', radar.name, Zmin_dB, radar.PW, radar.PW*3e8/2);
+	fprintf('%30s : %6.2f dBZ (PW: %.2e, BR: %.0fm)\n', radar.name, Zmin_dB, radar.PW, radar.PW*3e8/2);
 end
 
 %zz_db = 10*log10(1e9*zz); % <-- wrong version!
