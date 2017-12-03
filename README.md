@@ -1,5 +1,4 @@
-BOONLIB-M
-=========
+BLIB-M Boonleng's MATLAB Library
+=== 
 
-Boonleng's MATLAB library
-
+A collection of functions for convenient coding.
