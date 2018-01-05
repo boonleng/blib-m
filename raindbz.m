@@ -14,7 +14,7 @@ particle = 'rain';
 
 r = 150; % Plot the sensitivity curves up to r (km)
 
-R = 15e3;   % Special evaluation at range R
+R = 50e3;   % Special evaluation at range R
 %R = 25e3;   % Special evaluation at range R
 %R = 150e3;
 
@@ -94,11 +94,14 @@ radars = cat(1, radars, struct('name', '750kW 1.57us (WSR-88D)',         'Pmin',
 
 line_color = [0 0.3 1.0];
 radars = cat(1, radars, struct('name', 'PX-10k 800W 67us',               'Pmin', 10^(-110/10), 'lambda', 0.0314,    'Pt', 800e3 * wav_eff, 'G', 10^(42/10), 'theta', 1.4/180*pi, 'PW',   67e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color)));
-radars = cat(1, radars, struct('name', 'PX-10k 800W 1.5us (Fill Pulse)', 'Pmin', 10^(-110/10), 'lambda', 0.0314,    'Pt', 800e3 * wav_eff, 'G', 10^(42/10), 'theta', 1.4/180*pi, 'PW',   67e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color)));
+radars = cat(1, radars, struct('name', 'PX-10k 800W 1.5us (Fill Pulse)', 'Pmin', 10^(-110/10), 'lambda', 0.0314,    'Pt', 800e3 * wav_eff, 'G', 10^(42/10), 'theta', 1.4/180*pi, 'PW',  1.5e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color)));
 
 line_color = [0 0.7 0.6];
-radars = cat(1, radars, struct('name', 'PC-10k 800W 67us',               'Pmin', 10^(-110/10), 'lambda', 0.0500,    'Pt', 800e3 * wav_eff, 'G', 10^(42/10), 'theta', 2.8/180*pi, 'PW',   67e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color, 'LineWidth', 1.5)));
-radars = cat(1, radars, struct('name', 'PC-10k 800W 1.5us (Fill Pulse)', 'Pmin', 10^(-110/10), 'lambda', 0.0500,    'Pt', 800e3 * wav_eff, 'G', 10^(42/10), 'theta', 2.8/180*pi, 'PW',   67e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color, 'LineWidth', 1.5)));
+% radars = cat(1, radars, struct('name', 'PC-10k 800W 67us',               'Pmin', 10^(-110/10), 'lambda', 0.0500,    'Pt', 800e3 * wav_eff, 'G', 10^(42/10), 'theta', 2.8/180*pi, 'PW',   67e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color, 'LineWidth', 1.5)));
+% radars = cat(1, radars, struct('name', 'PC-10k 800W 1.5us (Fill Pulse)', 'Pmin', 10^(-110/10), 'lambda', 0.0500,    'Pt', 800e3 * wav_eff, 'G', 10^(42/10), 'theta', 2.8/180*pi, 'PW',   67e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color, 'LineWidth', 1.5)));
+
+radars = cat(1, radars, struct('name', 'PX1k 200W 67us',               'Pmin', 10^(-110/10), 'lambda', 0.0314,    'Pt', 200e3 * wav_eff, 'G', 10^(38/10), 'theta', 1.8/180*pi, 'PW',   67e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color, 'LineWidth', 1.5)));
+radars = cat(1, radars, struct('name', 'PX1k 200W 1.5us (Fill Pulse)', 'Pmin', 10^(-110/10), 'lambda', 0.0314,    'Pt', 200e3 * wav_eff, 'G', 10^(38/10), 'theta', 1.8/180*pi, 'PW',  1.5e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color, 'LineWidth', 1.5)));
 
 % radar = struct('name', '375kW 1.57us (WSR-88D)', ... 
 % 	'Pmin', 10^(-112/10), ...
