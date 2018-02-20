@@ -49,7 +49,7 @@ cc = kron(catlo, [1 1 nan]);
 
 clf
 hbg = axes;
-zmap = boonlib('zmap');
+zmap = blib('zmap');
 zmap = zmap(2:end,:);
 tmp = rgb2hsv(get(gcf,'color'));
 fig_brightnenss = tmp(3);
@@ -431,10 +431,10 @@ axis(hbg, 'off')
 legend({radars.name})
 
 if fig_brightnenss > 0.5
-    boonlib('bsizewin', gcf, [800 400])
+    blib('bsizewin', gcf, [800 400])
 	set(ht, 'Color', 'k')
 else
-	boonlib('bsizewin',gcf,[680 480])
+	blib('bsizewin',gcf,[680 480])
 	set(ht, 'Color', 'w')
 end
 
