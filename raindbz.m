@@ -12,19 +12,27 @@ clf
 particle = 'rain';
 % particle = 'snow';
 
-r = 150; % Plot the sensitivity curves up to r (km)
+% Plot the sensitivity curves up to r (km)
+% r = 150;
+r = 60;
 
-R = 50e3;   % Special evaluation at range R
-%R = 25e3;   % Special evaluation at range R
+% Special evaluation at range R
+R = 50e3;
+%R = 25e3;
 %R = 150e3;
 
+% The speed of light
 c = 299792458;
 
-% Waveform / system efficiency
-% wav_eff = 1; % 100% efficient
-wav_eff = 0.9;
-% wav_eff = 0.7;
-% wav_eff = 0.31; % Taylor window
+% Waveform efficiency:
+%    - 1.0;  % 100% efficient
+%    - 0.9;  % Maximum in practice
+%    - 0.7;  % Conservative
+%    - 0.31; % Taylor window
+
+% Y-axis limit to show
+% ylim = [-15, 75];
+ylim = [-5, 60];
 
 if ~exist('xscale','var'), xscale = 'linear'; end
 
@@ -35,7 +43,7 @@ cat_str = {'Trace / light snow / gust front (No rain)',...
 	       'Heavy thunderstorms',...
 	       'Intense to severe thunderstorms with hail'};
 n = numel(cat_str);
-catlo = 12.8:10:65;
+catlo = 12.8 : 10 : 65;
 if strcmp(particle, 'rain')
 	K = sqrt(0.93);
 elseif strcmp(particle, 'snow')
@@ -45,32 +53,38 @@ else
 	return;
 end
 
-cc = kron(catlo, [1 1 nan]);
+cc = kron(catlo, [1, 1, nan]);
 
 clf
+
+% Background
 hbg = axes;
-zmap = boonlib('zmap');
-zmap = zmap(2:end,:);
-tmp = rgb2hsv(get(gcf,'color'));
+zmap = blib('zmap');
+zmap = zmap(2:end, :);
+tmp = rgb2hsv(get(gcf, 'color'));
 fig_brightnenss = tmp(3);
 if fig_brightnenss > 0.5
-	zmap = 0.4*zmap + 0.6*ones(size(zmap));
+	zmap = 0.4 * zmap + 0.6 * ones(size(zmap));
 else
-	zmap = 0.6*zmap;
+	zmap = 0.6 * zmap;
 end
-imagesc([0.001 r],5:.5:80,(5:.5:80)'*ones(1,2));
-caxis([5.5 80.5])
-colormap(zmap);
+% Compensate y-axis for the 0.5-pixel boundary w/ imagesc()
+dy = 0.25;
+yy = kron((1:size(zmap, 1)).', ones(5 / dy, 1));
+ind = repmat(yy, [1, 2]);
+imrgb = ind2rgb(ind, zmap);
+image([0.001, r], (0 : numel(yy) - 1) * dy + 0.5 * dy, imrgb);
 
-pos = get(gca,'Position');
-axes('position',pos);
+% Foreground
+pos = get(gca, 'Position');
+hfg = axes('position', pos);
+
+lp = linkprop([hbg, hfg], {'XLim', 'YLim'});
 
 hold on
 
-%plot(rr,cc,'k--');
-
-NF = 10^(3.0/10);       % Noise Figure
-rr = 1e3*(1:0.5:r);
+NF = 10 ^ (3.0 / 10);       % Noise Figure
+rr = 1e3 * (1:0.5:r);
 
 fprintf(['*****************\n',...
          '*    Z M I N    *\n',...
@@ -90,18 +104,53 @@ radars = [];
 %   'attrib', []);                                       % Plot attributes, can be empty
 % radars = radar;
 
-radars = cat(1, radars, struct('name', '750kW 1.57us (WSR-88D)',         'Pmin', 10^(-112/10), 'lambda', 3e8/2.7e9, 'Pt', 750e6,           'G', 10^(43/10), 'theta', 1.0/180*pi, 'PW', 1.57e-6, 'L', 10^(1/10), 'attrib', struct('Color', [1, 0, 0])));
+% radars = cat(1, radars, struct('name', '750kW 1.57us (WSR-88D)',         'Pmin', 10^(-112/10), 'lambda', 3e8/2.7e9, 'Pt', 750e6,           'G', 10^(43/10), 'theta', 1.0/180*pi, 'PW', 1.57e-6, 'L', 10^(1/10), 'attrib', struct('Color', [1, 0, 0])));
 
-line_color = [0 0.3 1.0];
-radars = cat(1, radars, struct('name', 'PX-10k 800W 67us',               'Pmin', 10^(-110/10), 'lambda', 0.0314,    'Pt', 800e3 * wav_eff, 'G', 10^(42/10), 'theta', 1.4/180*pi, 'PW',   67e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color)));
-radars = cat(1, radars, struct('name', 'PX-10k 800W 1.5us (Fill Pulse)', 'Pmin', 10^(-110/10), 'lambda', 0.0314,    'Pt', 800e3 * wav_eff, 'G', 10^(42/10), 'theta', 1.4/180*pi, 'PW',  1.5e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color)));
+% line_color = [0 0.3 1.0];
+% radars = cat(1, radars, struct('name', 'PX-10k 800W 67us',               'Pmin', 10^(-110/10), 'lambda', 0.0314,    'Pt', 800e3 * wav_eff, 'G', 10^(42/10), 'theta', 1.4/180*pi, 'PW',   67e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color)));
+% radars = cat(1, radars, struct('name', 'PX-10k 800W 1.5us (Fill Pulse)', 'Pmin', 10^(-110/10), 'lambda', 0.0314,    'Pt', 800e3 * wav_eff, 'G', 10^(42/10), 'theta', 1.4/180*pi, 'PW',  1.5e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color)));
 
-line_color = [0 0.7 0.6];
+% line_color = [0 0.7 0.6];
 % radars = cat(1, radars, struct('name', 'PC-10k 800W 67us',               'Pmin', 10^(-110/10), 'lambda', 0.0500,    'Pt', 800e3 * wav_eff, 'G', 10^(42/10), 'theta', 2.8/180*pi, 'PW',   67e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color, 'LineWidth', 1.5)));
 % radars = cat(1, radars, struct('name', 'PC-10k 800W 1.5us (Fill Pulse)', 'Pmin', 10^(-110/10), 'lambda', 0.0500,    'Pt', 800e3 * wav_eff, 'G', 10^(42/10), 'theta', 2.8/180*pi, 'PW',   67e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color, 'LineWidth', 1.5)));
 
-radars = cat(1, radars, struct('name', 'PX1k 200W 67us',               'Pmin', 10^(-110/10), 'lambda', 0.0314,    'Pt', 200e3 * wav_eff, 'G', 10^(38/10), 'theta', 1.8/180*pi, 'PW',   67e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color, 'LineWidth', 1.5)));
-radars = cat(1, radars, struct('name', 'PX1k 200W 1.5us (Fill Pulse)', 'Pmin', 10^(-110/10), 'lambda', 0.0314,    'Pt', 200e3 * wav_eff, 'G', 10^(38/10), 'theta', 1.8/180*pi, 'PW',  1.5e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color, 'LineWidth', 1.5)));
+% radars = cat(1, radars, struct('name', 'PX1k 200W 67us',               'Pmin', 10^(-110/10), 'lambda', 0.0314,    'Pt', 200e3 * wav_eff, 'G', 10^(38/10), 'theta', 1.8/180*pi, 'PW',   67e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color, 'LineWidth', 1.5)));
+% radars = cat(1, radars, struct('name', 'PX1k 200W 1.5us (Fill Pulse)', 'Pmin', 10^(-110/10), 'lambda', 0.0314,    'Pt', 200e3 * wav_eff, 'G', 10^(38/10), 'theta', 1.8/180*pi, 'PW',  1.5e-6, 'L', 10^(2/10), 'attrib', struct('Color', line_color, 'LineWidth', 1.5)));
+
+% The following set of four radars all have the same radar hardware configurations 
+L = 10 ^ (2 / 10);
+G_ant = 10 ^ (38 / 10);
+theta = 1.8 / 180 * pi;
+lambda = 0.0314;
+pw_hi = 67e-6;
+pw_lo = 1.5e-6;
+if ~exist('label_odd_index_only', 'var')
+    label_odd_index_only = true;
+end
+
+% Kaisser Window with 3.19-dB SNR loss
+line_color = [0 0.3 1.0];
+wav_eff = 1.0 / 10 ^ (3.19 / 10);
+radars = cat(1, radars, struct('name', '70 dB Kaiser LFM',               'Pmin', 10^(-110/10), 'lambda', lambda,    'Pt', 100e3 * wav_eff, 'G', G_ant, 'theta', theta, 'PW', pw_hi, 'L', L, 'attrib', struct('Color', line_color, 'LineWidth', 1.5, 'LineStyle', ':')));
+radars = cat(1, radars, struct('name', '70 dB Kaiser LFM (Fill Pulse)',  'Pmin', 10^(-110/10), 'lambda', lambda,    'Pt', 100e3 * wav_eff, 'G', G_ant, 'theta', theta, 'PW', pw_lo, 'L', L, 'attrib', struct('Color', line_color, 'LineWidth', 1.5, 'LineStyle', ':')));
+
+% Nuttall Window with 2.96-dB SNR loss
+line_color = [1.0, 0.3, 0.2];
+wav_eff = 1.0 / 10 ^ (2.96 / 10);
+radars = cat(1, radars, struct('name', 'De Witte and Griffiths 2004',              'Pmin', 10^(-110/10), 'lambda', lambda,    'Pt', 100e3 * wav_eff, 'G', G_ant, 'theta', theta, 'PW', pw_hi, 'L', L, 'attrib', struct('Color', line_color, 'LineWidth', 1.5, 'LineStyle', '-.')));
+radars = cat(1, radars, struct('name', 'De Witte and Griffiths 2004 (Fill Pulse)', 'Pmin', 10^(-110/10), 'lambda', lambda,    'Pt', 100e3 * wav_eff, 'G', G_ant, 'theta', theta, 'PW', pw_lo, 'L', L, 'attrib', struct('Color', line_color, 'LineWidth', 1.5, 'LineStyle', '-.')));
+
+% Optimized LFM with 0.24-dB SNR loss
+line_color = [0.0, 0.7, 0.6];
+wav_eff = 1.0 / 10 ^ (0.24 / 10);
+radars = cat(1, radars, struct('name', 'Optimized LFM',                  'Pmin', 10^(-110/10), 'lambda', lambda,    'Pt', 100e3 * wav_eff, 'G', G_ant, 'theta', theta, 'PW', pw_hi, 'L', L, 'attrib', struct('Color', line_color, 'LineWidth', 2.0)));
+radars = cat(1, radars, struct('name', 'Optimized LFM (Fill Pulse)',     'Pmin', 10^(-110/10), 'lambda', lambda,    'Pt', 100e3 * wav_eff, 'G', G_ant, 'theta', theta, 'PW', pw_lo, 'L', L, 'attrib', struct('Color', line_color, 'LineWidth', 2.0)));
+
+% Perfect ideal world that we cannot get to ... :(
+wav_eff = 1.0;
+line_color = [0.0, 0.0, 0.0];
+radars = cat(1, radars, struct('name', 'Non-Windowed LFM',               'Pmin', 10^(-110/10), 'lambda', lambda,    'Pt', 100e3 * wav_eff, 'G', G_ant, 'theta', theta, 'PW', pw_hi, 'L', L, 'attrib', struct('Color', line_color, 'LineWidth', 1.5, 'LineStyle', '--')));
+radars = cat(1, radars, struct('name', 'Non-Windowed LFM (Fill Pulse)',  'Pmin', 10^(-110/10), 'lambda', lambda,    'Pt', 100e3 * wav_eff, 'G', G_ant, 'theta', theta, 'PW', pw_lo, 'L', L, 'attrib', struct('Color', line_color, 'LineWidth', 1.5, 'LineStyle', '--')));
 
 % radar = struct('name', '375kW 1.57us (WSR-88D)', ... 
 % 	'Pmin', 10^(-112/10), ...
@@ -381,14 +430,14 @@ for ir = 1:numel(radars)
 
 	% Zmin = (Pmin*1024*log(2)*lambda^2*R^2) / (Pt*G^2*theta^2*c*PW*pi^3*K^2*TL);
 	
-	Zmin = (radar.Pmin * 1024 * log(2) * radar.lambda ^ 2 * R ^ 2) / (radar.Pt * radar.G ^ 2 * radar.theta ^ 2 * c * radar.PW * pi^3 * K ^ 2 * TL);
+	Zmin = (radar.Pmin * 1024 * log(2) * radar.lambda ^ 2 * R ^ 2) / (radar.Pt * radar.G ^ 2 * radar.theta ^ 2 * c * radar.PW * pi ^ 3 * K ^ 2 * TL);
 	Zmin_dB = 10 * log10(Zmin * 1e18);  % Convert m to mm^6/m^3
     Zmin_dB = Zmin_dB + cen;
 
 	zz(ir, :) = (radar.Pmin * 1024 * log(2) * radar.lambda ^ 2 .* rr .^ 2) / (radar.Pt * radar.G ^ 2 * radar.theta ^ 2 * c * radar.PW * pi ^ 3 * K ^ 2 * TL);
 
-	r_blind = c*radar.PW/2;
-	zz(ir, rr<r_blind) = nan;
+	r_blind = c * radar.PW / 2;
+	zz(ir, rr < r_blind - 250) = nan;  % Put a 250-m pad here for cosmetics
 	
     if strfind(radar.name, 'Fill')
         [~, idx] = min(abs(rr - r_blind_prev));
@@ -397,23 +446,23 @@ for ir = 1:numel(radars)
     
     r_blind_prev = r_blind;
 
-	fprintf('%30s : %6.2f dBZ (PW: %.2e, BR: %.0fm)\n', radar.name, Zmin_dB, radar.PW, radar.PW*3e8/2);
+	fprintf('%30s : %6.2f dBZ (PW: %.2e, BR: %.0fm)\n', radar.name, Zmin_dB, radar.PW, radar.PW * c / 2);
 end
 
-%zz_db = 10*log10(1e9*zz); % <-- wrong version!
-zz_db = 10*log10(1e18*zz) + cen;
-h = plot(1e-3*rr, zz_db);
-if strcmp(xscale,'log')
+%zz_db = 10*log10(1e9*zz); % <-- wrong version! (keep here for documentation purpose)
+zz_db = 10*log10(1e18 * zz) + cen;
+h = plot(1e-3 * rr, zz_db);
+if strcmp(xscale, 'log')
     xx = 1.1;
 else
     xx = 0.02*r;
 end
-ht = text(xx*ones(1,n), catlo(1:n)+5, cat_str);
+ht = text(xx * ones(1,n), catlo(1:n) + 5, cat_str, 'Clipping', 'On');
 
 % Use a mix of white and background color to create transparent look
 for idx = 1:numel(ht)
-	icolor = round(catlo(idx)/5);
-	set(ht(idx), 'Color', 0.7*[1 1 1] + 0.3*zmap(icolor, :));
+	icolor = round(catlo(idx) / 5);
+	set(ht(idx), 'Color', 0.7 * [1, 1, 1] + 0.3 * zmap(icolor, :));
 end
 
 set(ht,'HorizontalAlignment', 'Left');
@@ -421,20 +470,24 @@ grid on
 xlabel('Range (km)')
 ylabel('dBZ')
 title(sprintf('Radar Sensitivity Matrix (lower is better) -  |K|^2 = %.3f (%s) ', K ^ 2, particle), 'Fontsize', 14);
-text(r, 76, sprintf('Created on %s', datestr(date)), 'HorizontalAlignment', 'Right', 'FontSize', 6)
-ylim = [-15 70];
+text(r, ylim(2) + 0.05 * diff(ylim), sprintf('Created on %s', datestr(date)), 'HorizontalAlignment', 'Right', 'FontSize', 6)
+xlim = [0, r];
 set(gca, 'YDir', 'Normal', ...
-    'YTick', -25:5:65, 'YLim', ylim, 'XScale', xscale, 'Color', 'None', 'Box', 'On');
+    'YTick', -25:5:65, 'XLim', xlim, 'YLim', ylim, 'XScale', xscale, 'Color', 'None', 'Box', 'On');
 set(hbg, 'YDir', 'Normal', 'YLim', ylim, 'Box', 'Off');
 axis(hbg, 'off')
 
-legend({radars.name})
+if label_odd_index_only
+    legend(h(1:2:end), {radars(1:2:end).name})
+else
+    legend({radars.name})
+end
 
 if fig_brightnenss > 0.5
-    boonlib('bsizewin', gcf, [800 400])
+    blib('bsizewin', gcf, [800, 400])
 	set(ht, 'Color', 'k')
 else
-	boonlib('bsizewin',gcf,[680 480])
+	blib('bsizewin',gcf,[680, 480])
 	set(ht, 'Color', 'w')
 end
 

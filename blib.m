@@ -1,4 +1,6 @@
-% BOONLIB - Boon Leng's library of functions
+% BLIB-M - Boonleng's library of functions
+%
+% 7/1/2017 - Corrected syntaxes for Matlab R2017b
 %
 % 6/2/2013 - Added rainbowmap().
 %          - Added accentmap().
@@ -177,7 +179,7 @@
 %
 %
 
-function [varargout] = boonlib(fn,varargin)
+function [varargout] = blib(fn,varargin)
 if ~exist('fn','var')
 	eval('help boonlib')
     if isempty(whos), feval('demo'); return; end
@@ -291,7 +293,8 @@ if (nargin<1)||isempty(h); h = get(0,'Children'); end
 scnsize = get(0,'ScreenSize');
 % If there are two screen (==2690 pixels), use my office setting, otherwise single screen settings
 if scnsize(3)>2560, x_off = 1280; if (nargin<2)||isempty(cn), cn = [50 80]; end
-else x_off = 0;
+else
+    x_off = 0;
 	if (nargin<2)||isempty(cn)
         if (ispc)
             cn = [10 30];
@@ -336,7 +339,7 @@ for ifig = 1:nfig
     ff = zeros([nspace 1]);
     % If there is menubar, penalize more
     if ~strcmpi(get(h(ifig),'Menubar'),'figure'), ybar = 21;
-    else ybar = 72;
+    else, ybar = 72;
     end
     % Go through the available space to see if current window fits without overlaps
     for ispace = 1:nspace
@@ -405,7 +408,7 @@ offset = target-f(:,1:2)-f(:,3:4);
 % figure(1)
 % imagesc(scnspace);
 % set(gca,'YDir','Normal')
-if any(offset(:)~=0), 
+if any(offset(:)~=0) 
     if verLessThan('matlab', '6.0.0') || (ispc)
         feval('bmovefig',h,offset);
     else
@@ -1102,7 +1105,7 @@ switch (mode)
     case 'exd'
         tmp = linspace(0,1,npts).';
         yiqmap(1:npts,1) = 0.45*tmp+0.55*(exp(tmp)-1)/(exp(1)-1);
-    case 'rap',
+    case 'rap'
         Raw = [0.00 0.00 0.00; ...
                0.15 0.15 0.50; ...
                0.30 0.15 0.75; ...
@@ -1320,7 +1323,7 @@ return
 
 
 function [cmap] = fleximap(num,pt)
-if nargin < 1,
+if nargin < 1
     num = 15;
     pt = [0    0.5 0.0 0.0;...
           0.20 1.0 0.0 0.0;...
@@ -1360,8 +1363,8 @@ return
 
 function [x] = drawarrow(lims)
 if nargin<1,lims = [0 0 0.5]; end
-if length(lims)<4,t = pi/4; else t = lims(4); end
-if length(lims)<5,a = 1; else a = lims(5); end
+if length(lims)<4,t = pi/4; else, t = lims(4); end
+if length(lims)<5,a = 1; else, a = lims(5); end
 ha = findobj(gcf,'UserData','ArrowOverlay');
 orig_unit = get(gcf,'Unit');
 figsize = get(gcf,'Position');
@@ -1416,7 +1419,7 @@ x(7)=plot(hsvmap(:,1),'Color',[0.7 0.0 1.0]);
 % [legh objh outh outm] = legend(x,'Red Channel','Green Channel','Blue Channel',...
 %          'Luminance Y','Chrominance I','Chrominance Q',-1);
 [~, objh] = legend(x,'Red Channel','Green Channel','Blue Channel',...
-	'Luminance Y','Chrominance I','Chrominance Q','Hue',-1);
+	'Luminance Y','Chrominance I','Chrominance Q','Hue','Location','NorthEastOutside');
 tmp = findobj(objh,'Type','Text');
 set(tmp,'Color',get(0,'defaultTextColor'));
 %tmp = get(0,'defaultAxesXColor');
@@ -1559,7 +1562,7 @@ for idx=1:length(ha)
     for itag=1:length(tags)
         if isprop(ha(idx),tags{itag})
             clr = get(ha(idx),tags{itag});
-            if isnumeric(clr),
+            if isnumeric(clr)
                 %fprintf('Prop = %s  Val = %s\n',tags{itag},num2str(tmp));
 				clr = rgb2ycbcr(clr);
 				clr(:,2) = blend*adj(1)+(1-blend)*clr(:,2);
@@ -1578,9 +1581,9 @@ for idx=1:length(ha)
 	end
     for jdx=1:length(hb)
         for itag=1:length(tags)
-            if isprop(hb(jdx),tags{itag}),
+            if isprop(hb(jdx),tags{itag})
                 clr = get(hb(jdx),tags{itag});
-                if isnumeric(clr),
+                if isnumeric(clr)
                     %fprintf('Prop = %s  Val = %s\n',tags{itag},num2str(tmp));
 					clr = rgb2ycbcr(clr);
 					clr(:,2) = blend*adj(1)+(1-blend)*clr(:,2);
@@ -1627,7 +1630,7 @@ if length(path_choice)>1
 		tmp = arg3(1);
 		% fprintf('Pre-selected Folder #%d: %s\n',tmp,char(path_choice(tmp)));
 	else
-		for idx = 1:length(path_choice);
+		for idx = 1:length(path_choice)
 			fprintf(' % 3d. %s\n',idx,char(path_choice{idx}));
 		end
 		fprintf('\n');
@@ -1693,7 +1696,7 @@ else
 end
 
 % Construct the full path filename
-if strcmp(dirname,'.'),
+if strcmp(dirname,'.')
     fname = char(flist(tmp));
 else
     fname = [dirname,char(flist(tmp))];
@@ -1718,7 +1721,7 @@ if ~isempty(tmp)
 	% tmp = cat(1,tmp{:});   % <-- Array with numbers for each entry
 	% Convert them into numbers
 	tmp2 = zeros(size(tmp));
-	for idx=1:numel(tmp2),
+	for idx=1:numel(tmp2)
 		tmp3 = str2double(char(tmp{idx}));
 		tmp2(idx,1:length(tmp3)) = tmp3;
 	end
@@ -1742,12 +1745,12 @@ else
 end
 if ~quiet
 	fbyte = fbyte(tmp);
-	if length(fbyte)<1,msize = 0; else msize = mean(fbyte); end
+	if length(fbyte)<1,msize = 0; else, msize = mean(fbyte); end
 	if msize<1e3,funits = 'B';
-	elseif msize>1e3&&msize<1e6,fbyte = fbyte/1024; funits = 'KB';
-	elseif msize>1e6&&msize<1e9,fbyte = fbyte/1024/1024; funits = 'MB';
-	elseif msize>1e9&&msize<1e12,fbyte = fbyte/1024/1024/1024; funits = 'GB';
-	else fprintf('Filesize is rediculously big at the year of 2005.\n'); x = []; return;
+	elseif msize>1e3&&msize<1e6, fbyte = fbyte/1024; funits = 'KB';
+	elseif msize>1e6&&msize<1e9, fbyte = fbyte/1024/1024; funits = 'MB';
+	elseif msize>1e9&&msize<1e12, fbyte = fbyte/1024/1024/1024; funits = 'GB';
+    else, fprintf('Filesize is rediculously big at the year of 2005.\n'); x = []; return;
 	end
 	tmp = size(char(flist));
 	msize = ceil(log10(max(fbyte)+1));
@@ -1778,7 +1781,7 @@ if ~quiet
 				fprintf(ftemplate(1:end-2),idx,char(flist(idx)),fbyte(idx)); % Left column
 				fprintf(ftemplate,half_idx+idx,char(flist(half_idx+idx)),fbyte(half_idx+idx)); % Right column
 			end
-			if mod(length(flist),2)~=0,
+			if mod(length(flist),2)~=0
 				fprintf(ftemplate,half_idx,char(flist(half_idx)),fbyte(half_idx));
 			end
 		else
@@ -1872,8 +1875,8 @@ if numel(L)~=4
     yn = -1;
     return
 end
-if size(R,1)~=4,
-    if numel(R)==4,
+if size(R,1)~=4
+    if numel(R)==4
         R = R(:);
     else
         fprintf('Sorry I can''t compute.\n');
@@ -2077,7 +2080,7 @@ return
 function ind = nwsd2ind(data)
 ind = zeros(size(data));
 lvl = [-4 -2 -0.5 0 0.25 0.5 1.0 1.5 2 2.5 3 4 5 6 8];
-for ii = 1:numel(lvl);
+for ii = 1:numel(lvl)
     mask = data >= lvl(ii);
     ind(mask) = ii;
 end
@@ -2086,7 +2089,7 @@ end
 function ind = nwsr2ind(data)
 ind = zeros(size(data));
 lvl = [0.2 0.45 0.65 0.75 0.80 0.85 0.90 0.93 0.95 0.96 0.97 0.98 0.99 1.00];
-for ii = 1:numel(lvl);
+for ii = 1:numel(lvl)
     mask = data >= lvl(ii);
     ind(mask) = ii;
 end
@@ -2272,8 +2275,8 @@ if all(isempty(FIG.hc(2:end)))
         icol = rem(k - 1, ncol);
         irow = floor((k - 1) / ncol);
         set(FIG.ha(k), 'Position', [ox + icol * rx, oy + (nrow - 1 - irow) * ry, rw, rh]);
-        if irow < nrow - 1, set(FIG.ha(k), 'XTickLabel', []); else xlabel(FIG.ha(k), 'X-Distance (m)'); end
-        if icol > 0, set(FIG.ha(k), 'YTickLabel', []); else ylabel(FIG.ha(k), 'Y-Distance (m)'); end
+        if irow < nrow - 1, set(FIG.ha(k), 'XTickLabel', []); else, xlabel(FIG.ha(k), 'X-Distance (m)'); end
+        if icol > 0, set(FIG.ha(k), 'YTickLabel', []); else, ylabel(FIG.ha(k), 'Y-Distance (m)'); end
     end
     delete(FIG.hc(2:end))
     set(FIG.hc(1), 'Position', [ox + (ncol - 1) * rx + rw + 0.025, oy + (nrow - 1) * ry, 0.07 * rh, rh])
@@ -2285,8 +2288,8 @@ else
         icol = rem(k - 1, ncol);
         irow = floor((k - 1) / ncol);
         set(FIG.ha(k), 'Position', [ox + icol * rx, oy + (nrow - 1 - irow) * ry, rw, rh]);
-        if irow < nrow - 1, set(FIG.ha(k), 'XTickLabel', []); else xlabel(FIG.ha(k), 'X-Distance (m)'); end
-        if icol > 0, set(FIG.ha(k), 'YTickLabel', []); else ylabel(FIG.ha(k), 'Y-Distance (m)'); end
+        if irow < nrow - 1, set(FIG.ha(k), 'XTickLabel', []); else, xlabel(FIG.ha(k), 'X-Distance (m)'); end
+        if icol > 0, set(FIG.ha(k), 'YTickLabel', []); else, ylabel(FIG.ha(k), 'Y-Distance (m)'); end
         set(FIG.hc(k), 'Position', [ox + icol * rx + rw + 0.25 * ox, oy + (nrow - 1 - irow) * ry, 0.03 * rh, rh])
     end
 end
